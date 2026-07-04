@@ -1,5 +1,8 @@
+# Override at install time, e.g.:
+#   helm upgrade ... -f kkartchart/values.secrets.yaml
+jwtSecret: "changeme"
 image:
-  books: 
+  books:
     repository: repository.k8sengineers.com/apexrepo/books
     tag: latest
   main: 

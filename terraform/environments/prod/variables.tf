@@ -57,3 +57,27 @@ variable "instance_types" {
   type        = list(string)
   default     = ["t3.medium"]
 }
+
+variable "domain_name" {
+  description = "Root domain name managed in Route53"
+  type        = string
+  default     = "bhanu5125.shop"
+}
+
+variable "create_zone" {
+  description = "Whether Terraform should create the Route53 hosted zone. Leave false if the zone already exists (e.g. registered elsewhere and delegated to Route53)."
+  type        = bool
+  default     = false
+}
+
+variable "subdomain" {
+  description = "Subdomain the app is served on, e.g. \"emart\" for emart.<domain_name>"
+  type        = string
+  default     = "emart"
+}
+
+variable "ingress_lb_hostname" {
+  description = "External hostname of the nginx-ingress controller's LoadBalancer Service. Deploy the ingress controller first (helm install ingress-nginx ...), then run: kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' and pass the result via -var ingress_lb_hostname=..."
+  type        = string
+  default     = ""
+}

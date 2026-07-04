@@ -30,6 +30,7 @@
     "mongoose": "^5.4.8",
     "multer": "^1.4.1",
     "nodemailer": "^6.6.5",
+    "prom-client": "^14.2.0",
     "smtp": "^0.1.4",
     "validator": "^13.6.0"
   }

@@ -1,2 +1,4 @@
 
 terraform/environments/prod/.terraform/
+.env
+kkartchart/values.secrets.yaml

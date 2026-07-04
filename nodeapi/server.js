@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const colors = require("colors");
+const promClient = require("prom-client");
 
 const mongooseURI = require("./config/keys").mongoURI;
 
@@ -12,6 +13,29 @@ const shopRoutes = require("./routes/shop");
 
 
 const app = express();
+
+const metricsRegister = new promClient.Registry();
+promClient.collectDefaultMetrics({ register: metricsRegister, prefix: "nodeapi_" });
+
+const httpRequestDuration = new promClient.Histogram({
+  name: "nodeapi_http_request_duration_seconds",
+  help: "Duration of HTTP requests in seconds",
+  labelNames: ["method", "route", "status_code"],
+  registers: [metricsRegister]
+});
+
+app.use((req, res, next) => {
+  const end = httpRequestDuration.startTimer();
+  res.on("finish", () => {
+    end({ method: req.method, route: req.path, status_code: res.statusCode });
+  });
+  next();
+});
+
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", metricsRegister.contentType);
+  res.end(await metricsRegister.metrics());
+});
 
 app.use(cors());
 app.use(bodyParser.json());

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider
+  namespace: monitoring
+data:
+  provider.yml: |
+    apiVersion: 1
+    providers:
+      - name: emart
+        folder: E-Mart
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards

@@ -2,6 +2,10 @@ config:
   mongodbname: epoc
   mongo_uri: mongodb://emongo:27017/epoc
   mysqldbname: books
+  # Override at install time, e.g.:
+  #   helm upgrade ... -f kkartchart/values.secrets.yaml
+  #   helm upgrade ... --set kkartcharts-database.config.mysqlPassword=... (from parent chart)
+  mysqlPassword: "changeme"
 image:
   mongo: 
     repository: mongo

@@ -1,6 +1,4 @@
 module.exports = {
- // mongoURI: "<INSERT DATABASE URI>",
-  //  mongoURI: "mongodb://emongo:27017/epoc",
-  mongoURI: "mongodb://emongo:27017/epoc",
-  secretOrKey: "k1234e6s78h9av"
+  mongoURI: process.env.MONGO_URI || "mongodb://emongo:27017/epoc",
+  secretOrKey: process.env.JWT_SECRET
 };

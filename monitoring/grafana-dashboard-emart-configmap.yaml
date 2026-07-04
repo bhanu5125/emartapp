@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-emart
+  namespace: monitoring
+data:
+  emart-overview.json: |
+    {
+      "title": "E-Mart Overview",
+      "uid": "emart-overview",
+      "schemaVersion": 39,
+      "version": 1,
+      "timezone": "browser",
+      "time": { "from": "now-1h", "to": "now" },
+      "refresh": "30s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "Service Up",
+          "type": "stat",
+          "gridPos": { "h": 6, "w": 24, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "up{kubernetes_namespace=\"kart\"}",
+              "legendFormat": "{{kubernetes_pod_name}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" } } },
+                { "type": "value", "options": { "1": { "text": "UP", "color": "green" } } }
+              ]
+            }
+          }
+        },
+        {
+          "id": 2,
+          "title": "nodeapi request rate (by route)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+          "targets": [
+            {
+              "expr": "sum(rate(nodeapi_http_request_duration_seconds_count[5m])) by (route)",
+              "legendFormat": "{{route}}"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "nodeapi 5xx error rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+          "targets": [
+            {
+              "expr": "sum(rate(nodeapi_http_request_duration_seconds_count{status_code=~\"5..\"}[5m])) / sum(rate(nodeapi_http_request_duration_seconds_count[5m]))",
+              "legendFormat": "error ratio"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "javaapi p95 latency",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"javaapi\"}[5m])) by (le))",
+              "legendFormat": "p95 latency (s)"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "javaapi request rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+          "targets": [
+            {
+              "expr": "sum(rate(http_server_requests_seconds_count{application=\"javaapi\"}[5m])) by (uri)",
+              "legendFormat": "{{uri}}"
+            }
+          ]
+        }
+      ]
+    }

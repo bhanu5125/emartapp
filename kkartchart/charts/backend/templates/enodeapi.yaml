@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-{{ .Chart.Name }}-main
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: {{ .Release.Name }}-{{ .Chart.Name }}-main
@@ -21,6 +25,14 @@ spec:
         ports:
         - name: enodeapi-port
           containerPort: 5000
+        env:
+         - name: MONGO_URI
+           value: 'mongodb://emongo:27017/epoc'
+         - name: JWT_SECRET
+           valueFrom:
+             secretKeyRef:
+               name: {{ .Release.Name }}-{{ .Chart.Name }}-appsecret
+               key: jwt-secret
       imagePullSecrets:
-      - name: regcred 
+      - name: regcred
      

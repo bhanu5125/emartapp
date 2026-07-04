@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  namespace: monitoring
+data:
+  alerts.yml: |
+    groups:
+      - name: emart-availability
+        rules:
+          - alert: ServiceDown
+            expr: up{kubernetes_namespace="kart"} == 0
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: "{{ $labels.kubernetes_pod_name }} is down"
+              description: "{{ $labels.kubernetes_pod_name }} in namespace {{ $labels.kubernetes_namespace }} has been unreachable for more than 2 minutes."
+
+      - name: emart-errors
+        rules:
+          - alert: NodeApiHighErrorRate
+            expr: |
+              (
+                sum(rate(nodeapi_http_request_duration_seconds_count{status_code=~"5.."}[5m]))
+                /
+                sum(rate(nodeapi_http_request_duration_seconds_count[5m]))
+              ) > 0.05
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "nodeapi 5xx error rate above 5%"
+              description: "nodeapi has returned more than 5% 5xx responses over the last 5 minutes."
+
+          - alert: JavaApiHighLatency
+            expr: |
+              histogram_quantile(0.95,
+                sum(rate(http_server_requests_seconds_bucket{application="javaapi"}[5m])) by (le)
+              ) > 1
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "javaapi p95 latency above 1s"
+              description: "javaapi's 95th percentile request latency has exceeded 1 second for 5 minutes."
